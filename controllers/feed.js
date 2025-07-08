@@ -1,3 +1,7 @@
+// System / Package imports
+import { validationResult } from "express-validator";
+
+//Get Post methods = GET
 export const getPost = (req, res, next) => {
   res.status(200).json({
     posts: [
@@ -13,10 +17,18 @@ export const getPost = (req, res, next) => {
   });
 };
 
+//Create Post Method = POST
 export const createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
 
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({
+      message: "Validation Failed",
+      error: error.array(),
+    });
+  }
   //create a post in db
   res.status(201).json({
     message: "Post created successfully",

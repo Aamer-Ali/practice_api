@@ -1,5 +1,6 @@
 //System / package import
 import express from "express";
+import { body } from "express-validator";
 
 //local file methods etc imports
 import { getPost, createPost } from "../controllers/feed.js";
@@ -11,7 +12,14 @@ const router = express.Router();
 //here using MVC patters so just calling the methods which are in the controller
 router.get("/posts", getPost);
 
-router.post("/post", createPost);
+router.post(
+  "/post",
+  [
+    body("title").trim().isLength({ min: 5 }),
+    body("content").trim().isLength({ min: 5 }),
+  ],
+  createPost
+);
 
 //exports
 export { router as feedRoutes };
