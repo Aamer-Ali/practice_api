@@ -1,9 +1,11 @@
+//System / package import
 import express from "express";
-
-import { feedRoutes } from "./routes/feed.js";
-
 import bodyParser from "body-parser";
 
+//local file methods etc imports
+import { feedRoutes } from "./routes/feed.js";
+
+//instantiating objects or variables
 const app = express();
 
 //Parser middleware
