@@ -25,11 +25,11 @@ export const createPost = (req, res, next) => {
 
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    return res.status(422).json({
-      message: "Validation Failed",
-      error: error.array(),
-    });
+    const error = Error("Validation Failed");
+    error.statusCode = 422;
+    throw error;
   }
+
   const post = new Post({
     title: title,
     content: content,
@@ -46,5 +46,10 @@ export const createPost = (req, res, next) => {
         post: result,
       });
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next();
+    });
 };

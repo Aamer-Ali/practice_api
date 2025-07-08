@@ -1,4 +1,6 @@
 //System / package import
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
@@ -8,9 +10,12 @@ import { feedRoutes } from "./routes/feed.js";
 
 //instantiating objects or variables
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 //Parser middleware
 app.use(bodyParser.json());
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 //CORS
 //Every Request or Response we have this applied to all of them
@@ -27,6 +32,14 @@ app.use((req, res, next) => {
 
 //routes
 app.use("/feed", feedRoutes);
+
+//General Error handling functionality
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  res.status(status).json({ message: message });
+});
 
 //Stablish connection to data-base ( Mongoose )
 mongoose
