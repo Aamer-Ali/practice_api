@@ -4,18 +4,19 @@ import Post from "../models/post.js";
 
 //Get Post methods = GET
 export const getPost = (req, res, next) => {
-  res.status(200).json({
-    posts: [
-      {
-        id: "'1",
-        title: "First Post",
-        content: "This is the first post",
-        imageUrl: "images/image.jpg",
-        creator: { name: "Aamer" },
-        createdAt: new Date(),
-      },
-    ],
-  });
+  Post.find()
+    .then((result) => {
+      res.status(200).json({
+        message: "Post Fetched Success",
+        posts: result,
+      });
+    })
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next();
+    });
 };
 
 //Create Post Method = POST
@@ -45,6 +46,25 @@ export const createPost = (req, res, next) => {
         message: "Post created successfully",
         post: result,
       });
+    })
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next();
+    });
+};
+
+export const getPostById = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then((result) => {
+      if (!result) {
+        const error = new Error("The record for this Id is not found...");
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({ message: "Post Fetched", post: result });
     })
     .catch((error) => {
       if (!error.statusCode) {

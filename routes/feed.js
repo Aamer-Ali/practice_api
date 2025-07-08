@@ -3,7 +3,7 @@ import express from "express";
 import { body } from "express-validator";
 
 //local file methods etc imports
-import { getPost, createPost } from "../controllers/feed.js";
+import { getPost, createPost, getPostById } from "../controllers/feed.js";
 
 //instantiating objects or variables
 const router = express.Router();
@@ -20,6 +20,8 @@ router.post(
   ],
   createPost
 );
+
+router.get("/post/:postId", getPostById);
 
 //exports
 export { router as feedRoutes };
