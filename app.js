@@ -1,6 +1,7 @@
 //System / package import
 import express from "express";
 import bodyParser from "body-parser";
+import mongoose from "mongoose";
 
 //local file methods etc imports
 import { feedRoutes } from "./routes/feed.js";
@@ -27,5 +28,12 @@ app.use((req, res, next) => {
 //routes
 app.use("/feed", feedRoutes);
 
-//listener
-app.listen(8080);
+//Stablish connection to data-base ( Mongoose )
+mongoose
+  .connect(
+    "mongodb+srv://sayyedaamerali:Yub3u9ixmaKqYXqt@cluster0.opaz9ov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+  )
+  .then((result) => {
+    app.listen(8080);
+  })
+  .catch((error) => console.log(error));
