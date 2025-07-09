@@ -3,7 +3,12 @@ import express from "express";
 import { body } from "express-validator";
 
 //local file methods etc imports
-import { getPost, createPost, getPostById } from "../controllers/feed.js";
+import {
+  getPost,
+  createPost,
+  getPostById,
+  updatePost,
+} from "../controllers/feed.js";
 
 //instantiating objects or variables
 const router = express.Router();
@@ -22,6 +27,15 @@ router.post(
 );
 
 router.get("/post/:postId", getPostById);
+
+router.put(
+  "/post/:postId",
+  [
+    body("title").trim().isLength({ min: 5 }),
+    body("content").trim().isLength({ min: 5 }),
+  ],
+  updatePost
+);
 
 //exports
 export { router as feedRoutes };

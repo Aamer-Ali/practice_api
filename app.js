@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import multer from "multer";
 
 //local file methods etc imports
 import { feedRoutes } from "./routes/feed.js";
@@ -13,8 +14,32 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, callBack) => {
+    callBack(null, "images");
+  },
+  filename: (req, file, callBack) => {
+    callBack(null, new Date() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, callBack) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    callBack(null, true);
+  } else {
+    callBack(null, false);
+  }
+};
+
 //Parser middleware
 app.use(bodyParser.json());
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 //CORS
