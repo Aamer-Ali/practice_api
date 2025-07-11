@@ -8,6 +8,7 @@ import {
   createPost,
   getPostById,
   updatePost,
+  deletePost,
 } from "../controllers/feed.js";
 
 //instantiating objects or variables
@@ -36,6 +37,8 @@ router.put(
   ],
   updatePost
 );
+
+router.delete("/post/:postId", deletePost);
 
 //exports
 export { router as feedRoutes };
