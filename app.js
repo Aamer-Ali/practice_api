@@ -8,6 +8,7 @@ import multer from "multer";
 
 //local file methods etc imports
 import { feedRoutes } from "./routes/feed.js";
+import { authRoutes } from "./routes/auth.js";
 
 //instantiating objects or variables
 const app = express();
@@ -57,13 +58,15 @@ app.use((req, res, next) => {
 
 //routes
 app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 //General Error handling functionality
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 //Stablish connection to data-base ( Mongoose )
@@ -72,6 +75,10 @@ mongoose
     "mongodb+srv://sayyedaamerali:Yub3u9ixmaKqYXqt@cluster0.opaz9ov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then((result) => {
+    console.log(
+      "******** Database connected and server is started and functioning as expected."
+    );
+
     app.listen(8080);
   })
   .catch((error) => console.log(error));

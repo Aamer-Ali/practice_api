@@ -11,11 +11,22 @@ const __dirname = path.dirname(__filename);
 
 //Get Post methods = GET
 export const getPost = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = req.query.perPage || 2;
+  let totalItemsCount;
   Post.find()
-    .then((result) => {
-      res.status(200).json({
-        message: "Post Fetched Success",
-        posts: result,
+    .countDocuments()
+    .then((itemCount) => {
+      totalItemsCount = itemCount;
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })
+    .then((posts) => {
+      res.json({
+        message: "Fetched Post",
+        posts: posts,
+        totalItemsCount: totalItemsCount,
       });
     })
     .catch((error) => {
@@ -25,7 +36,6 @@ export const getPost = (req, res, next) => {
       next();
     });
 };
-
 //Create Post Method = POST
 export const createPost = (req, res, next) => {
   const title = req.body.title;

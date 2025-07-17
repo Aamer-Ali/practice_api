@@ -1,0 +1,73 @@
+//System / package import
+import express from "express";
+import { body } from "express-validator";
+import { validationResult } from "express-validator";
+import { hash } from "bcryptjs";
+
+//local file import
+import User from "../models/user.js";
+
+//Variable and object
+const router = express.Router();
+
+router.put(
+  "/signup",
+  [
+    body("email")
+      .trim()
+      .isEmail()
+      .withMessage("please enter valid email")
+      //Here for validation in custom I have used async await instead of promise.
+      //No matter what use use be sure every thing is working fine and use exception handling properly.
+      .custom(async (value) => {
+        const userDoc = await User.findOne({ email: value });
+        if (userDoc) {
+          return Promise.reject("Email");
+        }
+      })
+      .normalizeEmail(),
+    body("password").trim().isEmpty(),
+    body("name").trim().isEmpty(),
+  ],
+  async (req, res, next) => {
+    /** Error Handling */
+    const errors = validationResult(req);
+    if (!errors.isEmpty) {
+      const error = Error("Please enter valid data");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    /** Extracting the data */
+    const email = req.body.email;
+    const name = req.body.name;
+    const password = req.body.password;
+
+    /** Encrypting the data
+     * All here I omit he Promises and used the async/await
+     * This is modern one & I am very much familiar with this
+     * Other can use what ever they want.
+     */
+    try {
+      const hashedPassword = await hash(password, 12);
+      const user = new User({
+        email: email,
+        name: name,
+        password: hashedPassword,
+      });
+      const savedData = await user.save();
+      if (savedData) {
+        res
+          .status(201)
+          .json({ message: "User Added successfully", userId: savedData._id });
+      }
+    } catch (error) {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+        next();
+      }
+    }
+  }
+);
+
+export { router as authRoutes };
