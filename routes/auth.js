@@ -2,7 +2,8 @@
 import express from "express";
 import { body } from "express-validator";
 import { validationResult } from "express-validator";
-import { hash } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 //local file import
 import User from "../models/user.js";
@@ -64,10 +65,54 @@ router.put(
     } catch (error) {
       if (!error.statusCode) {
         error.statusCode = 500;
-        next();
+        next(error);
       }
     }
   }
 );
+
+router.post("/login", async (req, res, next) => {
+  //Extract Data
+  const email = req.body.email;
+  const password = req.body.password;
+
+  try {
+    //Check user in data base
+    const userFormDb = await User.findOne({ email: email });
+
+    //No user through the error
+    if (!userFormDb) {
+      const error = new Error("Usr not found with this email id");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    //If user present Match the password
+    const isPasswordMatch = await compare(password, userFormDb.password);
+    //If password did not match through the error
+    if (!isPasswordMatch) {
+      const error = new Error("Password is in correct");
+      error.statusCode = 401;
+      throw error;
+    }
+    //If password matched create one token
+    const token = jwt.sign(
+      {
+        email: userFormDb.email,
+        userId: userFormDb._id.toString(),
+      },
+      "some-secret-key",
+      { expiresIn: "1h" }
+    );
+    //Send the token with the data you want.
+    res.status(200).json({ token: token, userId: userFormDb._id.toString() });
+  } catch (error) {
+    //Global Error
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+});
 
 export { router as authRoutes };

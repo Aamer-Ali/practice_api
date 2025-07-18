@@ -33,7 +33,7 @@ export const getPost = (req, res, next) => {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
-      next();
+      next(error);
     });
 };
 //Create Post Method = POST
@@ -75,7 +75,7 @@ export const createPost = (req, res, next) => {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
-      next();
+      next(error);
     });
 };
 
@@ -95,7 +95,7 @@ export const getPostById = (req, res, next) => {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
-      next();
+      next(error);
     });
 };
 
@@ -143,7 +143,7 @@ export const updatePost = (req, res, next) => {
     .catch((error) => {
       if (!error.statusCode) {
         error.statusCode = 500;
-        next();
+        next(error);
       }
     });
 };
@@ -168,7 +168,7 @@ export const deletePost = (req, res, next) => {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
-      next();
+      next(error);
     });
 };
 
