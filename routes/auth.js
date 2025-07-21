@@ -1,6 +1,10 @@
 //System / package import
 import express from "express";
-import { body } from "express-validator";
+//Mixed Pattern ES + Legacy
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const validator = require("express-validator");
+// import { body } from "express-validator";
 import { validationResult } from "express-validator";
 import { compare, hash } from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -14,7 +18,8 @@ const router = express.Router();
 router.put(
   "/signup",
   [
-    body("email")
+    validator
+      .body("email")
       .trim()
       .isEmail()
       .withMessage("please enter valid email")
@@ -27,8 +32,8 @@ router.put(
         }
       })
       .normalizeEmail(),
-    body("password").trim().isEmpty(),
-    body("name").trim().isEmpty(),
+    validator.body("password").trim().isEmpty(),
+    validator.body("name").trim().isEmpty(),
   ],
   async (req, res, next) => {
     /** Error Handling */
