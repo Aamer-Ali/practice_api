@@ -1,6 +1,7 @@
 // System / Package imports
 import { validationResult } from "express-validator";
 import Post from "../models/post.js";
+import User from "../models/user.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
@@ -37,11 +38,12 @@ export const getPost = (req, res, next) => {
     });
 };
 //Create Post Method = POST
-export const createPost = (req, res, next) => {
+export const createPost = async (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
+  let userId = req.userId;
 
-  console.log(req.file);
+  // console.log(req.file);
 
   const error = validationResult(req);
   if (!error.isEmpty()) {
@@ -59,24 +61,37 @@ export const createPost = (req, res, next) => {
     title: title,
     content: content,
     imageUrl: imageUrl,
-    creator: { name: "Aamer Ali" },
+    creator: userId,
   });
   //create a post in db
-  post
-    .save()
-    .then((result) => {
-      console.log(result);
-      res.status(201).json({
-        message: "Post created successfully",
-        post: result,
-      });
-    })
-    .catch((error) => {
+  try {
+    const savedPost = await post.save();
+
+    const loggedInUser = await User.findById(userId);
+
+    loggedInUser.posts.push(post);
+    const savedLoggedInUser = await loggedInUser.save();
+
+    /** Here we can add more validations and error handling to check every time that the
+     * Post is saved and is there a loggedInUser and also the data is pushed to user and Saved that
+     */
+
+    res.status(201).json({
+      message: "Post created successfully",
+      post: post,
+      creator: {
+        _id: savedLoggedInUser._id,
+        name: savedLoggedInUser.name,
+      },
+    });
+  } catch {
+    (error) => {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
       next(error);
-    });
+    };
+  }
 };
 
 //Get posts by Id method = GET

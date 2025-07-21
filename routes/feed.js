@@ -21,6 +21,7 @@ router.get("/posts", isAuthorized, getPost);
 
 router.post(
   "/post",
+  isAuthorized,
   [
     body("title").trim().isLength({ min: 5 }),
     body("content").trim().isLength({ min: 5 }),
@@ -32,6 +33,7 @@ router.get("/post/:postId", getPostById);
 
 router.put(
   "/post/:postId",
+  isAuthorized,
   [
     body("title").trim().isLength({ min: 5 }),
     body("content").trim().isLength({ min: 5 }),
@@ -39,7 +41,7 @@ router.put(
   updatePost
 );
 
-router.delete("/post/:postId", deletePost);
+router.delete("/post/:postId", isAuthorized, deletePost);
 
 //exports
 export { router as feedRoutes };
