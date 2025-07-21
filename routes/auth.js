@@ -101,8 +101,8 @@ router.post("/login", async (req, res, next) => {
         email: userFormDb.email,
         userId: userFormDb._id.toString(),
       },
-      "some-secret-key",
-      { expiresIn: "1h" }
+      "some-secret-key"
+      // { expiresIn: "1h" }
     );
     //Send the token with the data you want.
     res.status(200).json({ token: token, userId: userFormDb._id.toString() });

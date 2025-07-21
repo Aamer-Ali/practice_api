@@ -10,13 +10,14 @@ import {
   updatePost,
   deletePost,
 } from "../controllers/feed.js";
+import { isAuthorized } from "../middleware/is-auth.js";
 
 //instantiating objects or variables
 const router = express.Router();
 
 //main routes logic
 //here using MVC patters so just calling the methods which are in the controller
-router.get("/posts", getPost);
+router.get("/posts", isAuthorized, getPost);
 
 router.post(
   "/post",
