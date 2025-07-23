@@ -1,4 +1,7 @@
 //System / package import
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+require("dotenv").config();
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
@@ -11,6 +14,7 @@ import { feedRoutes } from "./routes/feed.js";
 import { authRoutes } from "./routes/auth.js";
 
 //instantiating objects or variables
+const PORT = process.env.PORT || 8080;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,14 +75,14 @@ app.use((error, req, res, next) => {
 
 //Stablish connection to data-base ( Mongoose )
 mongoose
-  .connect(
-    "mongodb+srv://sayyedaamerali:Yub3u9ixmaKqYXqt@cluster0.opaz9ov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-  )
+  .connect(process.env.MONGO_URL)
   .then((result) => {
     console.log(
       "******** Database connected and server is started and functioning as expected."
     );
 
-    app.listen(8080);
+    app.listen(PORT);
   })
-  .catch((error) => console.log(error));
+  .catch((error) => {
+    console.log(error);
+  });
