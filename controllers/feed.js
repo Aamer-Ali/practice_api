@@ -115,14 +115,16 @@ export const getPostById = (req, res, next) => {
 };
 
 // Update Post method = PUT
-export const updatePost = (req, res, next) => {
+export const updatePost = async (req, res, next) => {
   const postId = req.params.postId;
+  const userId = req.userId;
 
   const error = validationResult(req);
   if (!error.isEmpty()) {
     const error = new Error("Validation Failed..");
     error.statusCode = 422;
   }
+
   const title = req.body.title;
   const content = req.body.content;
   let imageUrl = req.body.image;
@@ -136,55 +138,68 @@ export const updatePost = (req, res, next) => {
     throw error;
   }
 
-  Post.findById(postId)
-    .then((result) => {
-      if (!result) {
-        const error = new Error("No post with this post id found");
-        error.statusCode = 404;
-        throw error;
-      }
+  try {
+    const selectedPost = await Post.findById(postId);
+    if (!selectedPost) {
+      const error = new Error("No post with this post id found");
+      error.statusCode = 404;
+      throw error;
+    }
+    console.log(selectedPost.creator.toString());
+    console.log(userId);
 
-      if (imageUrl !== result.imageUrl) {
-        clearImage(result.imageUrl);
-      }
-      result.title = title;
-      result.content = content;
-      result.imageUrl = imageUrl;
-      return result.save();
-    })
-    .then((result) => {
-      res.status(200).json({ message: "Post Updated!", post: result });
-    })
-    .catch((error) => {
-      if (!error.statusCode) {
-        error.statusCode = 500;
-        next(error);
-      }
-    });
+    if (selectedPost.creator.toString() !== userId.toString()) {
+      const error = new Error(
+        "User not is authorized user to make changes in the post"
+      );
+      error.statusCode = 403;
+      throw error;
+    }
+    if (imageUrl !== selectedPost.imageUrl) {
+      clearImage(selectedPost.imageUrl);
+    }
+    selectedPost.title = title;
+    selectedPost.content = content;
+    selectedPost.imageUrl = imageUrl;
+    const savedPost = await selectedPost.save();
+    res.status(200).json({ message: "Post Updated!", post: savedPost });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };
 
 //Delete post method = DELETE
-export const deletePost = (req, res, next) => {
+export const deletePost = async (req, res, next) => {
   const postId = req.params.postId;
-  Post.findById(postId)
-    .then((result) => {
-      if (!result) {
-        const error = new Error("No post with this post id found");
-        error.statusCode = 404;
-        throw error;
-      }
-      clearImage(result.imageUrl);
-      return Post.findByIdAndDelete(postId);
-    })
-    .then((result) => {
-      res.status(200).json({ message: "The Post is deleted..." });
-    })
-    .catch((error) => {
-      if (!error.statusCode) {
-        error.statusCode = 500;
-      }
-      next(error);
-    });
+  const userId = req.userId;
+
+  try {
+    const selectedPost = await Post.findById(postId);
+    if (!selectedPost) {
+      const error = new Error("No post with this post id found");
+      error.statusCode = 404;
+      throw error;
+    }
+    if (selectedPost.creator.toString() !== userId.toString()) {
+      const error = new Error("User not is authorized user to delete the post");
+      error.statusCode = 403;
+      throw error;
+    }
+    // clearImage(selectedPost.imageUrl);
+    await Post.findByIdAndDelete(postId);
+    const selectedUser = await User.findById(userId);
+    selectedUser.posts.pop(postId);
+    await selectedUser.save();
+    res.status(200).json({ message: "The Post is deleted..." });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };
 
 //Clear image while updating or deleting the post

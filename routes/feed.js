@@ -29,7 +29,7 @@ router.post(
   createPost
 );
 
-router.get("/post/:postId", getPostById);
+router.get("/post/:postId", isAuthorized, getPostById);
 
 router.put(
   "/post/:postId",
