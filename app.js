@@ -12,6 +12,7 @@ import multer from "multer";
 //local file methods etc imports
 import { feedRoutes } from "./routes/feed.js";
 import { authRoutes } from "./routes/auth.js";
+import { genAiRouter } from "./routes/gen_ai.js";
 
 //instantiating objects or variables
 const PORT = process.env.PORT || 8080;
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 //routes
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
+app.use("/gen-ai", genAiRouter);
 
 //General Error handling functionality
 app.use((error, req, res, next) => {
@@ -78,7 +80,8 @@ mongoose
   .connect(process.env.MONGO_URL)
   .then((result) => {
     console.log(
-      "******** Database connected and server is started and functioning as expected."
+      "******** Database connected and server is started and functioning as expected",
+      PORT
     );
 
     app.listen(PORT);
