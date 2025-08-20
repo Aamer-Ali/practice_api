@@ -33,9 +33,12 @@ const system_prompt = `
             Output: {{step:"think" , content:"To perform addition I must go from left to right and add all the operands"}}
             Output: {{step:"output" , content:"4"}}
             Output: {{step:"validate" , content:"Seems like 4 is correct answer for 2 + 2"}}
+
             Output: {{step:"result" , content:"2 + 2 = 4 and that is calculated by adding all numbers"}}
             
             But if any one asked the query which is not related to maths then inform them that you are not suppose to answer the queries other than maths.`;
+`;
+
 
 router.post("/get-answer", async (req, res, next) => {
   let messages = [
