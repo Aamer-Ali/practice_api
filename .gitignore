@@ -5,3 +5,4 @@
 .idea/practice_api.iml
 .idea/vcs.xml
 .DS_Store
+.env
