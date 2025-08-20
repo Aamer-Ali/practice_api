@@ -37,8 +37,6 @@ const system_prompt = `
             Output: {{step:"result" , content:"2 + 2 = 4 and that is calculated by adding all numbers"}}
             
             But if any one asked the query which is not related to maths then inform them that you are not suppose to answer the queries other than maths.`;
-`;
-
 
 router.post("/get-answer", async (req, res, next) => {
   let messages = [
